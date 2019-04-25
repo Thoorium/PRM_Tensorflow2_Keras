@@ -1,16 +1,15 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Flatten, Conv2D
-from tensorflow.keras import Model
-
+from typing import Union, Optional, List, Tuple
 import cv2
 import numpy as np
-from scipy.misc import imresize
+from matplotlib.colors import hsv_to_rgb
+from scipy.ndimage import center_of_mass
 
 from . import PeakResponseMapping
 
 def fc_resnet50(num_classes: int = 2, pretrained: bool = True) -> tf.keras.Model:
-    return tf.keras.applications.ResNet50(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=num_classes)
+    return tf.keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=num_classes)
 
 def peak_response_mapping(
     backbone: tf.keras.Model,

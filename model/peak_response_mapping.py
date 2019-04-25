@@ -1,13 +1,14 @@
 import tensorflow as tf
 
-from tensorflow.keras.layers import Dense, Flatten, Conv2D
-from tensorflow.keras import Model
+#from tensorflow.keras.layers import Dense, Flatten, Conv2D
+#from tensorflow.keras import Model
 
 import cv2
 
 class PeakResponseMapping(tf.keras.Sequential):
 
     def __init__(self, output_dim, **kwargs):
+        super(PeakResponseMapping, self).__init__(**kwargs)
         self.output_dim = output_dim
         self.inferencing = False
         # use global average pooling to aggregate responses if peak stimulation is disabled
@@ -30,7 +31,8 @@ class PeakResponseMapping(tf.keras.Sequential):
             self.peak_filter = lambda x: self.filter_type
         else:
             self.peak_filter = None
-        super(PeakResponseMapping, self).__init__(**kwargs)
+
+        
         
 
     def build(self, input_shape):
