@@ -1,0 +1,41 @@
+name: tf2
+channels:
+  - conda-forge
+  - anaconda
+  - defaults
+dependencies:
+  - blas=1.0=mkl
+  - ca-certificates=2019.1.23=0
+  - certifi=2019.3.9=py37_0
+  - freetype=2.9.1=ha9979f8_1
+  - icc_rt=2019.0.0=h0cc432a_1
+  - olefile=0.46=py37_0
+  - openssl=1.0.2r=he774522_0
+  - pillow=6.0.0=py37hdc69c19_0
+  - scipy=1.2.1=py37h29ff71c_0
+  - tk=8.6.8=hfa6e2cd_0
+  - vc=14.1=h21ff451_3
+  - vs2015_runtime=15.5.2=3
+  - jpeg=9c=hfa6e2cd_1001
+  - libblas=3.8.0=6_mkl
+  - libcblas=3.8.0=6_mkl
+  - liblapack=3.8.0=6_mkl
+  - liblapacke=3.8.0=6_mkl
+  - libpng=1.6.37=h7602738_0
+  - libtiff=4.0.10=h36446d0_1001
+  - libwebp=1.0.2=hfa6e2cd_2
+  - numpy=1.16.3=py37h873a0b8_0
+  - opencv=4.1.0=py37hce2de41_0
+  - python=3.7.1=h9460c21_1003
+  - qt=5.6.2=h2639256_8
+  - zlib=1.2.11=h2fa13f4_1004
+  - icu=58.2=ha66f8fd_1
+  - intel-openmp=2019.3=203
+  - mkl=2019.3=203
+  - pip=19.0.3=py37_0
+  - setuptools=41.0.0=py37_0
+  - sqlite=3.28.0=he774522_0
+  - wheel=0.33.1=py37_0
+  - wincertstore=0.2=py37_0
+prefix: C:\Users\oli_2\Anaconda3\envs\tf2
+
