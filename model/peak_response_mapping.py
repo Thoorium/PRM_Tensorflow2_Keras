@@ -32,8 +32,9 @@ class PeakResponseMapping(tf.keras.Sequential):
         else:
             self.peak_filter = None
 
-        
-        
+    @staticmethod
+    def _median_filter(input):
+        return tf.contrib.distributions.percentile(input, 50.0) 
 
     def build(self, input_shape):
         # Create a trainable weight variable for this layer.
