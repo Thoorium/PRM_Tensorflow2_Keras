@@ -1,4 +1,7 @@
 import tensorflow as tf
+import tensorflow.keras.layers as K
+
+from model.functions import peak_stimulation
 
 #from tensorflow.keras.layers import Dense, Flatten, Conv2D
 #from tensorflow.keras import Model
@@ -53,6 +56,17 @@ class PeakResponseMapping(tf.keras.Sequential):
         super(PeakResponseMapping, self).build(input_shape)  # Be sure to call this at the end
 
     def call(self, inputs):
+        # classification network forwarding
+        if self.enable_peak_stimulation:
+            # sub-pixel peak finding
+            if self.sub_pixel_locating_factor > 1:
+                class_response_maps = K.UpSampling2D(inputs, size=(self.sub_pixel_locating_factor, self.sub_pixel_locating_factor), interpolation='bilinear')
+            # aggregate responses from informative receptive fields estimated via class peak responses
+            peak_list, aggregation = peak_stimulation.peak_stimulation(class_response_maps, win_size=self.win_size, peak_filter=self.peak_filter)
+        else:
+            # aggregate responses from all receptive fields
+            peak_list, aggregation = None, K.AveragePooling2D(inputs, pool_size=(2, 2), strides=None)
+
         return tf.matmul(inputs, self.kernel)
 
     def compute_output_shape(self, input_shape):
