@@ -21,7 +21,7 @@ def peak_response_mapping(
     """Peak Response Mapping."""
 
     model = PeakResponseMapping(
-        backbone, 
+        backbone,
         enable_peak_stimulation = enable_peak_stimulation,
         enable_peak_backprop = enable_peak_backprop, 
         win_size = win_size, 

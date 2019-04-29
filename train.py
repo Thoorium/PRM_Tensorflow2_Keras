@@ -1,14 +1,17 @@
 import tensorflow as tf
 
-from model import fc_resnet50, PeakResponseMapping
+from model.prm import fc_resnet50, peak_response_mapping
 
 import os
 import sys
 import json
 
-backbone = fc_resnet50(num_classes=2, pretrained=True)
+backbone = fc_resnet50(num_classes=1, pretrained=True)
 #backbone.trainable=False
-model = PeakResponseMapping(backbone)
+model = peak_response_mapping(backbone)
+
+#model.build((50,50))
+#model.summary()
 
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
 optimizer = tf.keras.optimizers.Adam()
@@ -49,7 +52,7 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 def preprocess_image(image):
   image = tf.image.decode_jpeg(image, channels=3)
-  image = tf.image.resize(image, [192, 192])
+  image = tf.image.resize(image, [448, 448])
   image /= 255.0  # normalize to [0,1] range
 
   return image

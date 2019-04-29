@@ -4,21 +4,29 @@ import tensorflow as tf
 #from tensorflow.keras import Model
 
 import cv2
+from typing import Union
 
 class PeakResponseMapping(tf.keras.Sequential):
 
-    def __init__(self, output_dim, **kwargs):
+    def __init__(self, 
+        output_dim,
+        enable_peak_stimulation: bool = True, 
+        enable_peak_backprop: bool = True, 
+        win_size: int = 3, 
+        sub_pixel_locating_factor: int = 1,
+        filter_type: Union[str, int, float] = 'median',
+         **kwargs):
         super(PeakResponseMapping, self).__init__(**kwargs)
         self.output_dim = output_dim
         self.inferencing = False
         # use global average pooling to aggregate responses if peak stimulation is disabled
-        self.enable_peak_stimulation = kwargs.get('enable_peak_stimulation', True)
+        self.enable_peak_stimulation = enable_peak_stimulation
         # return only the class response maps in inference mode if peak backpropagation is disabled
-        self.enable_peak_backprop = kwargs.get('enable_peak_backprop', True)
+        self.enable_peak_backprop = enable_peak_backprop
         # window size for peak finding
-        self.win_size = kwargs.get('win_size', 3)
+        self.win_size = win_size
         # sub-pixel peak finding
-        self.sub_pixel_locating_factor = kwargs.get('sub_pixel_locating_factor', 1)
+        self.sub_pixel_locating_factor = sub_pixel_locating_factor
         # peak filtering
         self.filter_type = kwargs.get('filter_type', 'median')
         if self.filter_type == 'median':
@@ -44,8 +52,17 @@ class PeakResponseMapping(tf.keras.Sequential):
                                       trainable=True)
         super(PeakResponseMapping, self).build(input_shape)  # Be sure to call this at the end
 
-    def call(self, x):
-        return K.dot(x, self.kernel)
+    def call(self, inputs):
+        return tf.matmul(inputs, self.kernel)
 
     def compute_output_shape(self, input_shape):
         return (input_shape[0], self.output_dim)
+
+    def get_config(self):
+        base_config = super(PeakResponseMapping, self).get_config()
+        base_config['output_dim'] = self.output_dim
+        return base_config
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(**config)
