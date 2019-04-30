@@ -20,7 +20,7 @@ def peak_stimulation(input, return_aggregation, win_size, peak_filter):
     peak_list = tf.map_fn(lambda x: tf.cast(tf.where(tf.not_equal(x, 0)), tf.float32), indices)
 
     # peak aggregation
-    if return_aggregation is not None:
-        peak_map = peak_map.float()
+    if return_aggregation:
+        # peak_map = peak_map.float()
         return peak_list, (input * peak_map) # more stuff here
     return indices

@@ -40,7 +40,7 @@ class PeakResponseMapping(K.Layer):
             self.peak_filter = lambda x: self.filter_type
         else:
             self.peak_filter = None
-        super(PeakResponseMapping, self).__init__(**kwargs)
+        super(PeakResponseMapping, self).__init__(dynamic=True, **kwargs)
 
     #@staticmethod
     #def _median_filter(input):
@@ -66,17 +66,60 @@ class PeakResponseMapping(K.Layer):
             if self.sub_pixel_locating_factor > 1:
                 class_response_maps = K.UpSampling2D(size=(self.sub_pixel_locating_factor, self.sub_pixel_locating_factor), interpolation='bilinear')(inputs)
             # aggregate responses from informative receptive fields estimated via class peak responses
-            peak_list, aggregation = peak_stimulation(class_response_maps, return_aggregation = False, win_size=self.win_size, peak_filter=self.peak_filter)
+            peak_list, aggregation = peak_stimulation(class_response_maps, return_aggregation = True, win_size=self.win_size, peak_filter=self.peak_filter)
         else:
             # aggregate responses from all receptive fields
             peak_list, aggregation = None, K.AveragePooling2D(pool_size=(2, 2), strides=None)(inputs)
 
-        
-        
-        return tf.tensordot(inputs, self.kernel)
+        if self.inferencing:
+            if not self.enable_peak_backprop:
+                return aggregation, class_response_maps
 
-    #def compute_output_shape(self, input_shape):
-    #    return (input_shape[0], self.output_dim)
+            assert class_response_maps.shape[0] == 1, 'Currently inference mode (with peak backpropagation) only supports one image at a time.'
+            if peak_list is None:
+                peak_list = peak_stimulation(class_response_maps, return_aggregation=False, win_size=self.win_size, peak_filter=self.peak_filter)
+
+            # peak_response_maps = []
+            # valid_peak_list = []
+            # # peak backpropagation
+            # grad_output = class_response_maps.new_empty(class_response_maps.size())
+            # for idx in range(peak_list.size(0)):
+            #     if aggregation[peak_list[idx, 0], peak_list[idx, 1]] >= class_threshold:
+            #         peak_val = class_response_maps[peak_list[idx, 0], peak_list[idx, 1], peak_list[idx, 2], peak_list[idx, 3]]
+            #         if peak_val > peak_threshold:
+            #             grad_output.zero_()
+            #             # starting from the peak
+            #             grad_output[peak_list[idx, 0], peak_list[idx, 1], peak_list[idx, 2], peak_list[idx, 3]] = 1
+            #             if input.grad is not None:
+            #                 input.grad.zero_()
+            #             class_response_maps.backward(grad_output, retain_graph=True)
+            #             prm = input.grad.detach().sum(1).clone().clamp(min=0)
+            #             peak_response_maps.append(prm / prm.sum())
+            #             valid_peak_list.append(peak_list[idx, :])
+            
+            # # return results
+            # class_response_maps = class_response_maps.detach()
+            # aggregation = aggregation.detach()
+
+            # if len(peak_response_maps) > 0:
+            #     valid_peak_list = torch.stack(valid_peak_list)
+            #     peak_response_maps = torch.cat(peak_response_maps, 0)
+            #     if retrieval_cfg is None:
+            #         # classification confidence scores, class-aware and instance-aware visual cues
+            #         return aggregation, class_response_maps, valid_peak_list, peak_response_maps
+            #     else:
+            #         # instance segmentation using build-in proposal retriever
+            #         return self.instance_seg(class_response_maps, valid_peak_list, peak_response_maps, retrieval_cfg)
+            # else:
+            #     return None
+        else:
+            # classification confidence scores
+            return aggregation
+
+        #return tf.tensordot(inputs, self.kernel)
+
+    def compute_output_shape(self, input_shape):
+        return input_shape#(input_shape[0], self.output_dim)
 
     #def get_config(self):
     #    base_config = super(PeakResponseMapping, self).get_config()
