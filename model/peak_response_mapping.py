@@ -29,7 +29,7 @@ class PeakResponseMapping(K.Layer):
         # sub-pixel peak finding
         self.sub_pixel_locating_factor = sub_pixel_locating_factor
         # peak filtering
-        self.filter_type = kwargs.get('filter_type', 'median')
+        self.filter_type = filter_type
         if self.filter_type == 'median':
             self.peak_filter = self._median_filter
         elif self.filter_type == 'mean':
@@ -42,9 +42,13 @@ class PeakResponseMapping(K.Layer):
             self.peak_filter = None
         super(PeakResponseMapping, self).__init__(**kwargs)
 
-    @staticmethod
-    def _median_filter(input):
-        return tf.contrib.distributions.percentile(input, 50.0) 
+    #@staticmethod
+    #def _median_filter(input):
+    #    return tf.contrib.distributions.percentile(input, 50.0) 
+
+    @tf.function
+    def _mean_filter(self, input):
+        return tf.metrics.Mean(input)
 
     def build(self, input_shape):
         # Create a trainable weight variable for this layer.
@@ -67,6 +71,8 @@ class PeakResponseMapping(K.Layer):
             # aggregate responses from all receptive fields
             peak_list, aggregation = None, K.AveragePooling2D(pool_size=(2, 2), strides=None)(inputs)
 
+        
+        
         return tf.tensordot(inputs, self.kernel)
 
     #def compute_output_shape(self, input_shape):

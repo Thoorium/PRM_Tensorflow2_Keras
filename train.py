@@ -9,7 +9,7 @@ import json
 num_classes = 1
 backbone = tf.keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=num_classes)
 #backbone.trainable=False
-model = PeakResponseMapping(backbone)
+model = PeakResponseMapping(backbone, filter_type='mean')
 
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
 optimizer = tf.keras.optimizers.Adam()

@@ -13,17 +13,14 @@ def peak_stimulation(input, return_aggregation, win_size, peak_filter):
     #peak_map = (indices == element_map)
 
     # peak filtering
-    if peak_filter:
+    if peak_filter is not None:
         mask = input >= peak_filter(input)
         peak_map = (peak_map & mask)
-    zero = tf.constant(0, dtype=tf.float32)
-    where = tf.not_equal(peak_map, zero)
-    peak_list = tf.where(where)
-    #mask = tf.greater(array, 0)
-    #non_zero_array = tf.boolean_mask(array, mask)
+    #
+    peak_list = tf.map_fn(lambda x: tf.cast(tf.where(tf.not_equal(x, 0)), tf.float32), indices)
 
     # peak aggregation
-    if return_aggregation:
+    if return_aggregation is not None:
         peak_map = peak_map.float()
         return peak_list, (input * peak_map) # more stuff here
-    return peak_list
+    return indices
