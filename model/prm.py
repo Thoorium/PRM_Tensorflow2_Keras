@@ -8,27 +8,6 @@ from scipy.ndimage import center_of_mass
 
 from . import PeakResponseMapping
 
-def fc_resnet50(num_classes: int = 2, pretrained: bool = True) -> tf.keras.Model:
-    return tf.keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=num_classes)
-
-def peak_response_mapping(
-    backbone: tf.keras.Model,
-    enable_peak_stimulation: bool = True,
-    enable_peak_backprop: bool = True,
-    win_size: int = 3,
-    sub_pixel_locating_factor: int = 1,
-    filter_type: Union[str, int, float] = 'median') -> tf.keras.Model:
-    """Peak Response Mapping."""
-
-    model = PeakResponseMapping(
-        backbone,
-        enable_peak_stimulation = enable_peak_stimulation,
-        enable_peak_backprop = enable_peak_backprop, 
-        win_size = win_size, 
-        sub_pixel_locating_factor = sub_pixel_locating_factor, 
-        filter_type = filter_type)
-    return model
-
 def prm_visualize(
     instance_list: List[dict], 
     class_names: Optional[List[str]]=None,

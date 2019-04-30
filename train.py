@@ -1,17 +1,15 @@
 import tensorflow as tf
 
-from model.prm import fc_resnet50, peak_response_mapping
+from model import PeakResponseMapping
 
 import os
 import sys
 import json
 
-backbone = fc_resnet50(num_classes=1, pretrained=True)
+num_classes = 1
+backbone = tf.keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=num_classes)
 #backbone.trainable=False
-model = peak_response_mapping(backbone)
-
-#model.build((50,50))
-#model.summary()
+model = PeakResponseMapping(backbone)
 
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
 optimizer = tf.keras.optimizers.Adam()
