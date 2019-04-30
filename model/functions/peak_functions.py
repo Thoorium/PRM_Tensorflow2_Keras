@@ -5,10 +5,9 @@ import tensorflow.keras.layers as K
 def peak_stimulation(input, return_aggregation, win_size, peak_filter):
     assert win_size % 2 == 1, 'Window size for peak finding must be odd.'
     offset = (win_size - 1) // 2
-    padding_const = tf.constant([0])#tf.constant([float('-inf')])
-    padding = tf.pad(offset, padding_const, "CONSTANT")
-    padded_maps = tf.pad(input, padding, "CONSTANT")
-    batch_size, num_channels, h, w = padded_maps.size()
+    padding_const = tf.constant([[offset, offset,], [offset, offset], [offset, offset,], [offset, offset]])
+    padded_maps = tf.pad(input, padding_const, "CONSTANT")
+    batch_size, h, w, num_channels = input.shape
     #element_map = tf.range(0, h * w)
     indices = K.MaxPool2D(pool_size=win_size, strides=1)(padded_maps)
     #peak_map = (indices == element_map)
