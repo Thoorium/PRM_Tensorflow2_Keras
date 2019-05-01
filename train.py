@@ -10,6 +10,7 @@ num_classes = 1
 backbone = tf.keras.applications.ResNet50(include_top=False, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=num_classes)
 #backbone.trainable=False
 model = PeakResponseMapping(backbone, filter_type='mean')
+model = tf.keras.layers.Dense(1)(model)
 
 loss_object = tf.keras.losses.SparseCategoricalCrossentropy()
 optimizer = tf.keras.optimizers.Adam()
@@ -80,7 +81,7 @@ def load_dataset(images_path: str, labels_path: str):
                 ##if aa['region_attributes']['seg'] == 'tf':
                 ##    label_group.append(2)
             #labels.append(label_group)
-            labels.append(1)
+            labels.append('pt')
 
             image_path = os.path.join(images_path, a['filename'].split('/')[-1])
             if not os.path.isfile(image_path):
@@ -93,10 +94,15 @@ def load_dataset(images_path: str, labels_path: str):
 
 image_paths, labels = load_dataset('/Users/olivierbeaudoin/Projects/PRM_Tensorflow2_Keras/_dataset/images', '/Users/olivierbeaudoin/Projects/PRM_Tensorflow2_Keras/_dataset/labels.json')
 
+tokenizer = tf.keras.preprocessing.text.Tokenizer()
+tokenizer.fit_on_texts(labels)
+train_seqs = tokenizer.texts_to_sequences(labels)
+cap_vector = tf.keras.preprocessing.sequence.pad_sequences(train_seqs, padding='post')
+
 path_ds = tf.data.Dataset.from_tensor_slices(image_paths)
 image_ds = path_ds.map(load_and_preprocess_image, num_parallel_calls=AUTOTUNE)
 
-label_ds = tf.data.Dataset.from_tensor_slices(tf.cast(labels, tf.int64))
+label_ds = tf.data.Dataset.from_tensor_slices(tf.cast(train_seqs, tf.int64))
 image_label_ds = tf.data.Dataset.zip((image_ds, label_ds))
 
 ds = image_label_ds.apply(tf.data.experimental.shuffle_and_repeat(buffer_size=300))
