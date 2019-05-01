@@ -9,7 +9,6 @@ from typing import Union
 class PeakResponseMapping(K.Layer):
 
     def __init__(self,
-        output_dim, 
         #kernel_size,
         enable_peak_stimulation: bool = True, 
         enable_peak_backprop: bool = True, 
@@ -17,7 +16,6 @@ class PeakResponseMapping(K.Layer):
         sub_pixel_locating_factor: int = 1,
         filter_type: Union[str, int, float] = 'median',
          **kwargs):
-        self.output_dim = output_dim
         #self.kernel_size = kernel_size
         self.inferencing = False
         # use global average pooling to aggregate responses if peak stimulation is disabled
@@ -53,7 +51,7 @@ class PeakResponseMapping(K.Layer):
     def build(self, input_shape):
         # Create a trainable weight variable for this layer.
         self.kernel = self.add_weight(name='kernel', 
-                                      shape=input_shape,#(input_shape[1], self.output_dim),
+                                      shape=[input_shape[1], 2048],#input_shape,#(input_shape[1], self.output_dim),
                                       initializer='uniform',
                                       trainable=True)
         super(PeakResponseMapping, self).build(input_shape)  # Be sure to call this at the end
